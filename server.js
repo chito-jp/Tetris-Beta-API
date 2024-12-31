@@ -1,6 +1,7 @@
 import Mist from "@turbowarp/mist";
 import express from "express";
 import fs from "fs";
+import path from "path";
 
 const Beta=class{
   constructor(userAgent){
@@ -248,7 +249,8 @@ app.use(allowCrossDomain);
 const api=new Beta("chito-bot");
 
 app.get("/",(req,res)=>{
-  res.sendStatus(200);
+  res.setHeader("Content-Type", "text/html");
+  res.send(fs.readFileSync(path.join("todo.html"),"utf-8"));
 });
 
 app.get("/api/auth/:name",async(req,res)=>{
