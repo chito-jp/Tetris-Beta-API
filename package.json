@@ -1,0 +1,26 @@
+{
+  "name": "Tetris Beta API",
+  "version": "1.0.0",
+  "description": "Tetris Betaのクラウドサーバーに接続し、データを取得できるAPI",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "@turbowarp/mist": "^0.0.2"
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "repository": {
+    "url": "https://github.com/chito-jp/Beta-API"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "turbowarp",
+    "Tetris Beta"
+  ]
+}
