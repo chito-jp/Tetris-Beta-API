@@ -1,24 +1,3 @@
-/*
-エンドポイント一覧
-/data : 今まで取得したIDのデータを返す
-/api/id/名前 : ID取得
-/api/auth/名前 : /認証レベル(1桁)/警告(1桁)/id(5桁)g
-/api/profile/取得する相手の名前?name=自分の名前 : プレイヤーの情報取得
-/api/ranking/ランキングタイプ番号?name=自分の名前 : ランキング取得
-
----ランキングタイプ番号一覧---
-40line : 0
-20line : 1
-marathon : 2
-ultra : 3
-rate : 4
-level : 5
-apm : 6
-pps : 7
-playTiime : 8
-follower : 9
--------------------
-*/
 import Mist from "@turbowarp/mist";
 import express from "express";
 import fs from "fs";
@@ -26,7 +5,6 @@ import fs from "fs";
 const Beta=class{
   constructor(userAgent){
     this.data=JSON.parse(fs.readFileSync("data.json"));
-    this.random=fs.readFileSync("random.txt");
     this.keys=JSON.parse(fs.readFileSync("key.json"));
     this.connected=false;
     this.req={code:new Map(),resolve:new Map(),timeout:new Map(),interval:new Map()};
@@ -100,7 +78,6 @@ const Beta=class{
       const sendInterval = setInterval(() => {
         if (this.connected) {
           this.ws.set(String(Math.floor(Math.random() * 9)), req_code);
-          console.log("Request sent:", req_code);
         } else {
           clearInterval(sendInterval);
           reject(new Error("WebSocket not connected"));
@@ -128,7 +105,6 @@ const Beta=class{
     const auth=await this.getAuth(name);
     if(!auth)return null;
     const id=String(auth).slice(2,auth.length);
-    console.log(id);
     this.data[name]={id};
     fs.writeFileSync("data.json", JSON.stringify(this.data));
     return id;
@@ -253,9 +229,9 @@ const Beta=class{
       config:this.config(raw,646),
     }
   }
-  async getProfile(name,session){
+  async getUser(target,name,session){
     const id=await this.getId(name);
-    const req_code=`254${id}999${Math.floor(Math.random()*9)}${session || 10000}${this.toNum(name)}`;
+    const req_code=`254${id}999${Math.floor(Math.random()*9)}${session || 10000}${this.toNum(target)}`;
     return {raw:await this.sendRequest(req_code),id}
   }
 }
@@ -287,16 +263,30 @@ app.get("/api/id/:name",async(req,res)=>{
   res.json({name,data});
 });
 
-app.get("/api/ranking/:type",async(req,res)=>{
-  const {type}=req.params;
-  const raw=await api.getRanking(type,req.query.name,req.query?.session);
-  res.json({data:api.sortRanking(raw,type),raw});
-});
+const rankingPaths=[
+  "/api/ranking/40line/:name",
+  "/api/ranking/20line/:name",
+  "/api/ranking/marathon/:name",
+  "/api/ranking/ultra/:name",
+  "/api/ranking/rate/:name",
+  "/api/ranking/level/:name",
+  "/api/ranking/apm/:name",
+  "/api/ranking/pps/:name",
+  "/api/ranking/playtime/:name",
+  "/api/ranking/follower/:name"
+]
 
-app.get("/api/userdata/:target",async(req,res)=>{
-  const {target}=req.params;
-  const {name}=req.query;
-  const {raw,id}=await api.getProfile(name);
+for(let i=0;i<rankingPaths.length;i++){
+  app.get(rankingPaths[i],async(req,res)=>{
+    const {name}=req.params;
+    const raw=await api.getRanking(i,name);
+    res.json({data:api.sortRanking(raw,i),raw});
+  });
+}
+
+app.get("/api/user/:target/:name",async(req,res)=>{
+  const {target,name}=req.params;
+  const {raw,id}=await api.getUser(target,name,req.query?.session);
   res.json({data:api.profile(raw,0,{name:target,id}),raw});
 });
 
