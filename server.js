@@ -293,7 +293,7 @@ app.get("/api/ranking/:type",async(req,res)=>{
   res.json({data:api.sortRanking(raw,type),raw});
 });
 
-app.get("/api/profile/:target",async(req,res)=>{
+app.get("/api/userdata/:target",async(req,res)=>{
   const {target}=req.params;
   const {name}=req.query;
   const {raw,id}=await api.getProfile(name);
