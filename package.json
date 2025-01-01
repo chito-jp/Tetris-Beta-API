@@ -1,7 +1,8 @@
 {
-  "name": "@chito-jp/TetrisBetaAPI",
+  "name": "@chito-jp/tetris-beta-api",
   "version": "0.1.0",
   "description": "Tetris Betaのクラウドサーバーに接続し、データを取得できるライブラリ",
+  "private": false,
   "main": "./src/index.cjs",
   "exports": {
     "require": "./src/index.cjs",
@@ -26,5 +27,8 @@
     "node",
     "turbowarp",
     "Tetris Beta"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }
