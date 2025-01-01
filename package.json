@@ -1,7 +1,7 @@
 {
-  "name": "Tetris Beta API",
+  "name": "@chito-jp/TetrisBetaAPI",
   "version": "0.1.0",
-  "description": "Tetris Betaのクラウドサーバーに接続し、データを取得できるAPI",
+  "description": "Tetris Betaのクラウドサーバーに接続し、データを取得できるライブラリ",
   "main": "index.cjs",
   "exports": {
     "require": "./index.cjs",

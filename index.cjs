@@ -1,8 +1,6 @@
 import Mist from "@turbowarp/mist";
-import express from "express";
-import fs from "fs";
 
-const Beta=class{
+class Beta{
   constructor(userAgent){
     this.data={}
     this.keys=["1","2","3","4","5","6","7","8","9","0","q","w","e","r","t","y","u","i","o","p","a","s","d","f","g","h","j","k","l","z","x","c","v","b","n","m","up arrow","left arrow","down arrow","right arrow","space","shift"]
@@ -236,3 +234,7 @@ const Beta=class{
     return {id,raw,data:this.user(raw,0,{name,id})}
   }
 }
+
+module.exports = {
+  Beta,
+};
