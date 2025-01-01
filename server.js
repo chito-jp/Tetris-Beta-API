@@ -1,12 +1,11 @@
 import Mist from "@turbowarp/mist";
 import express from "express";
 import fs from "fs";
-import path from "path";
 
 const Beta=class{
   constructor(userAgent){
-    this.data=JSON.parse(fs.readFileSync("data.json"));
-    this.keys=JSON.parse(fs.readFileSync("key.json"));
+    this.data={}
+    this.keys=["1","2","3","4","5","6","7","8","9","0","q","w","e","r","t","y","u","i","o","p","a","s","d","f","g","h","j","k","l","z","x","c","v","b","n","m","up arrow","left arrow","down arrow","right arrow","space","shift"]
     this.connected=false;
     this.req={code:new Map(),resolve:new Map(),timeout:new Map(),interval:new Map()};
     
@@ -102,18 +101,18 @@ const Beta=class{
     return await this.sendRequest(req_code);
   }
   async getId(name){
-    if(this.data?.[name]){console.log("JSONファイルから取得したよ～");return this.data[name].id;}
+    if(this.data?.[name]){return this.data[name].id;}
     const auth=await this.getAuth(name);
     if(!auth)return null;
     const id=String(auth).slice(2,auth.length);
     this.data[name]={id};
-    fs.writeFileSync("data.json", JSON.stringify(this.data));
     return id;
   }
   async getRanking(type,name,session){
     const id=await this.getId(name);
-    const req_code=`251${id}9990${session || 10000}${type}`
-    return await this.sendRequest(req_code);
+    const req_code=`251${id}9990${session || 10000}${type}`;
+    const raw=await this.sendRequest(req_code);
+    return {raw,ranking:this.sortRanking(raw,type)}
   }
     timeFormat(time){
     let ret="";
@@ -179,7 +178,7 @@ const Beta=class{
       }
     }
   }
-  profile(raw,index,option){
+  user(raw,index,option){
     index=index || 0;
     let play_time=Number(raw.slice(index+46,index+53))-1000000;
     if(((play_time/60)>=10)){play_time=Math.floor(play_time/60)}else{play_time=Math.floor((play_time/60)*10)/10}
@@ -233,69 +232,7 @@ const Beta=class{
   async getUser(target,name,session){
     const id=await this.getId(name);
     const req_code=`254${id}999${Math.floor(Math.random()*9)}${session || 10000}${this.toNum(target)}`;
-    return {raw:await this.sendRequest(req_code),id}
+    const raw=await this.sendRequest(req_code);
+    return {id,raw,data:this.user(raw,0,{name,id})}
   }
 }
-
-const app=express();
-const allowCrossDomain = (req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST");
-  res.header("Access-Control-Allow-Headers", "*");
-  next();
-};
-app.use(allowCrossDomain);
-
-const api=new Beta("chito-bot");
-
-app.get("/",(req,res)=>{
-  res.setHeader("Content-Type", "text/html");
-  res.send(fs.readFileSync(path.join("todo.html"),"utf-8"));
-});
-
-app.get("/api/auth/:name",async(req,res)=>{
-  const {name}=req.params;
-  const data=await api.getAuth(name);
-  res.json({name,data});
-});
-
-app.get("/api/id/:name",async(req,res)=>{
-  const {name}=req.params;
-  const data=await api.getId(name);
-  res.json({name,data});
-});
-
-const rankingPaths=[
-  "/api/ranking/40line/:name",
-  "/api/ranking/20line/:name",
-  "/api/ranking/marathon/:name",
-  "/api/ranking/ultra/:name",
-  "/api/ranking/rate/:name",
-  "/api/ranking/level/:name",
-  "/api/ranking/apm/:name",
-  "/api/ranking/pps/:name",
-  "/api/ranking/playtime/:name",
-  "/api/ranking/follower/:name"
-]
-
-for(let i=0;i<rankingPaths.length;i++){
-  app.get(rankingPaths[i],async(req,res)=>{
-    const {name}=req.params;
-    const raw=await api.getRanking(i,name);
-    res.json({data:api.sortRanking(raw,i),raw});
-  });
-}
-
-app.get("/api/user/:target/:name",async(req,res)=>{
-  const {target,name}=req.params;
-  const {raw,id}=await api.getUser(target,name,req.query?.session);
-  res.json({data:api.profile(raw,0,{name:target,id}),raw});
-});
-
-app.get("/api/data",(req,res)=>{
-  res.json(api.getData());
-});
-
-
-const PORT=process.env.PORT || 7777;
-const listener=app.listen(PORT,()=>{console.log(`Server is running on PORT ${listener.address().port}`);});
