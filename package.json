@@ -1,6 +1,6 @@
 {
-  "name": "@chito-jp/tetris-beta-api",
-  "version": "1.0.1",
+  "name": "@chitose-jp/tetrisbeta-api",
+  "version": "1.0.0",
   "description": "Tetris Betaのクラウドサーバーに接続し、データを取得できるライブラリ",
   "private": false,
   "main": "dist/index.cjs.js",
