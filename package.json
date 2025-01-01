@@ -2,10 +2,10 @@
   "name": "@chito-jp/TetrisBetaAPI",
   "version": "0.1.0",
   "description": "Tetris Betaのクラウドサーバーに接続し、データを取得できるライブラリ",
-  "main": "index.cjs",
+  "main": "./src/index.cjs",
   "exports": {
-    "require": "./index.cjs",
-    "import": "./index.mjs"
+    "require": "./src/index.cjs",
+    "import": "./src/index.mjs"
   },
   "type": "module",
   "scripts": {
